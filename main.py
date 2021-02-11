@@ -1,5 +1,6 @@
 # import argparse
-from CustomerService.CustomerService import Parser, Command
+
+from handbook.command_parser import Parser, Command
 
 
 def main():

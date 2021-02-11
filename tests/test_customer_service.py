@@ -1,5 +1,5 @@
 import unittest
-from CustomerService.CustomerService import *
+from handbook.customer_service import *
 
 
 class TestCustomerService(unittest.TestCase):
