@@ -8,11 +8,11 @@ class TestCustomerService(unittest.TestCase):
 
     def test_insert_customer(self):
         # GIVEN
-        customer_id = '0001'
-        full_name = 'Vasya'
+        customer_id = '000000001'
+        full_name = 'Ivanov Vasyl'
         position = 'developer'
         name_of_the_organization = 'FGH'
-        email = 'vasya@mail.ru'
+        email = 'vasyl@mail.ru'
         phone = '79278763423'
 
         # WHEN
@@ -23,11 +23,11 @@ class TestCustomerService(unittest.TestCase):
 
     def test_find_customer(self):
         # GIVEN
-        customer_id = '0001'
-        full_name = 'Vasya'
+        customer_id = '000000001'
+        full_name = 'Ivanov Vasyl'
         position = 'developer'
         name_of_the_organization = 'FGH'
-        email = 'vasya@mail.ru'
+        email = 'vasyl@mail.ru'
         phone = '79278763423'
 
         self.customer_service.insert_customer(customer_id, full_name, position, name_of_the_organization, email, phone)
@@ -40,11 +40,11 @@ class TestCustomerService(unittest.TestCase):
 
     def test_update_customer(self):
         # GIVEN
-        customer_id = '0001'
-        full_name = 'Vasya'
+        customer_id = '000000001'
+        full_name = 'Ivanov Vasyl'
         position = 'developer'
         name_of_the_organization = 'FGH'
-        email = 'vasya@mail.ru'
+        email = 'vasyl@mail.ru'
         phone = '79278763423'
 
         self.customer_service.insert_customer(customer_id, full_name, position, name_of_the_organization, email, phone)
@@ -61,11 +61,11 @@ class TestCustomerService(unittest.TestCase):
 
     def test_delete_customer(self):
         # GIVEN
-        customer_id = '0001'
-        full_name = 'Vasya'
+        customer_id = '000000001'
+        full_name = 'Ivanov Vasyl'
         position = 'developer'
         name_of_the_organization = 'FGH'
-        email = 'vasya@mail.ru'
+        email = 'vasyl@mail.ru'
         phone = '79278763423'
 
         self.customer_service.insert_customer(customer_id, full_name, position, name_of_the_organization, email, phone)
@@ -79,11 +79,11 @@ class TestCustomerService(unittest.TestCase):
 
     def test_list_of_customer(self):
         # GIVEN
-        customer_id = '0001'
-        full_name = 'Vasya'
+        customer_id = '000000001'
+        full_name = 'Ivanov Vasyl'
         position = 'developer'
         name_of_the_organization = 'FGH'
-        email = 'vasya@mail.ru'
+        email = 'vasyl@mail.ru'
         phone = '79278763423'
 
         self.customer_service.insert_customer(customer_id, full_name, position, name_of_the_organization, email, phone)
@@ -96,11 +96,11 @@ class TestCustomerService(unittest.TestCase):
 
     def test_list_of_customer_ordered(self):
         # GIVEN
-        customer_id = '0001'
-        full_name = 'Vasya'
+        customer_id = '000000001'
+        full_name = 'Ivanov Vasyl'
         position = 'developer'
         name_of_the_organization = 'FGH'
-        email = 'vasya@mail.ru'
+        email = 'vasyl@mail.ru'
         phone = '79278763423'
 
         self.customer_service.insert_customer(customer_id, full_name, position, name_of_the_organization, email, phone)
