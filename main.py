@@ -1,5 +1,6 @@
 # import argparse
-from CustomerService.CustomerService import Parser, Command
+
+from handbook.command_parser import Parser, Command
 
 
 def main():
@@ -8,10 +9,17 @@ def main():
     # args = parser.parse_args()
     parser = Parser()
 
+    print("Please enter the command:")
+
     while True:
-        commands = input().split()
+        commands = input().split(maxsplit=1)
+
         command = Command.get_by_value(commands[0])
-        parser.parse_command(command, commands[1:])
+        arguments = []
+        if len(commands) > 1:
+            arguments = commands[1].split(',')
+
+        parser.parse_command(command, arguments)
 
 
 if __name__ == '__main__':
