@@ -1,7 +1,9 @@
 from enum import Enum
+import os.path
 
-from handbook.customer_service import CustomerService
+from handbook.customer_service import CustomerService, Customer
 from handbook.validator import Validator
+from handbook.xml_service import XMLService
 
 
 class Command(Enum):
@@ -31,19 +33,19 @@ class Command(Enum):
     )
     INSERT = (
         "insert",
-        "Error: 'insert' command requires 5 positional arguments separated by commas (no spaces!)\n"
+        "Error: 'insert' command requires 5 positional arguments separated by a commas\n"
         "<insert customer_id,full_name,position,name_of_the_organization,email,phone>"
     )
     UPDATE = (
         "update",
-        "Error: 'update' command requires 5 positional arguments separated by commas (no spaces!)\n"
+        "Error: 'update' command requires 5 positional arguments separated by a commas\n"
         "<update customer_id,full_name,position,name_of_the_organization,email,phone>"
     )
     FIND = (
         "find",
         "Error: 'find' command requires one positional argument name (customer_id,"
         "full_name, position name,_of_the_organization, email, phone) and one argument value "
-        "separated by commas (no spaces!)\n"
+        "separated by a commas\n"
         "<find 'one of the customer arguments','argument value'>"
     )
     DELETE = (
@@ -54,8 +56,8 @@ class Command(Enum):
     LIST = (
         "list",
         "Error: 'list' command requires any number positional arguments (customer_id,"
-        "full_name, position name,_of_the_organization, email, phone) separated by commas (no spaces!)\n"
-        "<list 'any number of customer arguments separated by a space'>"
+        "full_name, position name,_of_the_organization, email, phone) separated by space\n"
+        "<list 'any number of customer arguments separated by a commas'>"
     )
 
     @staticmethod
@@ -68,9 +70,20 @@ class Command(Enum):
 class Parser:
     def __init__(self):
         self.customer_service = CustomerService()
+        self.xml_service = XMLService
         self.validator = Validator()
 
-    def parse_command(self, command, arguments):
+    def chek_use_file(self, file_name):
+        use_file = False
+        if file_name is not None:
+            if not os.path.exists(file_name):
+                self.xml_service.create_file(file_name)
+            use_file = True
+        return use_file
+
+    def parse_command(self, file_name, command, arguments):
+        use_file = self.chek_use_file(file_name)
+
         if command == Command.HELP:
             print(command.HELP.description)
         elif command == Command.EXIT:
@@ -85,7 +98,10 @@ class Parser:
             valid_arguments['phone'] = arguments[5]
             if self.validator.validate_data(valid_arguments):
                 try:
-                    self.customer_service.insert_customer(*arguments)
+                    if use_file:
+                        self.xml_service.insert_customer(file_name, arguments)
+                    else:
+                        self.customer_service.insert_customer(*arguments)
                 except TypeError:
                     print(command.INSERT.description)
         elif command == Command.UPDATE:
@@ -98,7 +114,10 @@ class Parser:
             valid_arguments['phone'] = arguments[5]
             if self.validator.validate_data(valid_arguments):
                 try:
-                    self.customer_service.update_customer(*arguments)
+                    if use_file:
+                        self.xml_service.update_customer(file_name, arguments)
+                    else:
+                        self.customer_service.update_customer(*arguments)
                 except TypeError:
                     print(command.UPDATE.description)
         elif command == Command.DELETE:
@@ -106,14 +125,22 @@ class Parser:
             valid_arguments['customer_id'] = arguments[0]
             if self.validator.validate_data(valid_arguments):
                 try:
-                    self.customer_service.delete_customer(*arguments)
+                    if use_file:
+                        self.xml_service.delete_customer(file_name, *arguments)
+                    else:
+                        self.customer_service.delete_customer(*arguments)
                 except TypeError:
                     print(command.DELETE.description)
         elif command == Command.LIST:
             if self.validator.validate_data_for_list(arguments):
                 try:
-                    list_of_customer = self.customer_service.list_of_customer(arguments)
-                    print(*list_of_customer, sep='\n')
+                    if use_file:
+                        customers = self.xml_service.get_everything(file_name, arguments)
+                        for customer in customers:
+                            print(*customer, sep='\t', end='\n')
+                    else:
+                        list_of_customer = self.customer_service.list_of_customer(arguments)
+                        print(*list_of_customer, sep='\n')
                 except TypeError:
                     print(command.LIST.description)
         elif command == Command.FIND:
@@ -122,8 +149,12 @@ class Parser:
             valid_arguments[argument_name] = argument_value
             if self.validator.validate_data(valid_arguments):
                 try:
-                    customer = self.customer_service.find_customer(*arguments)
-                    print(customer)
+                    if use_file:
+                        customer = self.xml_service.find_customer(file_name, *arguments)
+                        print(*customer, sep='\t')
+                    else:
+                        customer = self.customer_service.find_customer(*arguments)
+                        print(customer)
                 except TypeError:
                     print(command.FIND.description)
         else:
