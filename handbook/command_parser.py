@@ -1,161 +1,142 @@
-from enum import Enum
-import os.path
+from abc import ABC, abstractmethod
 
-from handbook.customer_service import CustomerService, Customer
-from handbook.validator import Validator
-from handbook.xml_service import XMLService
+from handbook.customer_service import CustomerService
+from handbook.validator import Validator, ValidateException
 
 
-class Command(Enum):
-    def __init__(self, name, description):
-        self.val = name
-        self.description = description
+class Command(ABC):
 
-    HELP = (
-        "help",
-        "The program is designed to store, view and edit customer data\n"
-        "Commands:\n"
-        "\t'insert' - insert a new customer\n"
-        "\t\targuments: customer_id full_name position name_of_the_organization email phone\n"
-        "\t'find' - searches for a customer\n"
-        "\t\targuments: 'one of the customer arguments' 'argument value'\n"
-        "\t'update' - update a customer\n"
-        "\t\targuments: customer_id full_name position name_of_the_organization email phone\n"
-        "\t'delete' - removes customer\n"
-        "\t\targuments: customer_id\n"
-        "\t'list' - displays a list of customers sorted by the listed arguments\n"
-        "\t\targuments: 'any number of customer arguments separated by a space'\n"
-        "\t'exit' - exit the program"
-    )
-    EXIT = (
-        "exit",
-        ""
-    )
-    INSERT = (
-        "insert",
-        "Error: 'insert' command requires 5 positional arguments separated by a commas\n"
-        "<insert customer_id,full_name,position,name_of_the_organization,email,phone>"
-    )
-    UPDATE = (
-        "update",
-        "Error: 'update' command requires 5 positional arguments separated by a commas\n"
-        "<update customer_id,full_name,position,name_of_the_organization,email,phone>"
-    )
-    FIND = (
-        "find",
-        "Error: 'find' command requires one positional argument name (customer_id,"
-        "full_name, position name,_of_the_organization, email, phone) and one argument value "
-        "separated by a commas\n"
-        "<find 'one of the customer arguments','argument value'>"
-    )
-    DELETE = (
-        "delete",
-        "Error: 'delete' command requires 1 positional arguments - customer_id\n"
-        "<delete customer_id>"
-    )
-    LIST = (
-        "list",
-        "Error: 'list' command requires any number positional arguments (customer_id,"
-        "full_name, position name,_of_the_organization, email, phone) separated by space\n"
-        "<list 'any number of customer arguments separated by a commas'>"
-    )
-
-    @staticmethod
-    def get_by_value(value):
-        for command in Command:
-            if command.val.lower() == value.lower():
-                return command
+    @abstractmethod
+    def execute(self, customer_service: CustomerService) -> None:
+        pass
 
 
-class Parser:
+class ExitCommand(Command):
+
+    def execute(self, customer_service):
+        raise SystemExit
+
+
+class HelpCommand(Command):
+
+    def execute(self, customer_service):
+        print(
+            "The program is designed to store, view and edit customer data\n"
+            "Commands:\n"
+            "\t'insert' - insert a new customer\n"
+            "\t\targuments: customer_id full_name position name_of_the_organization email phone\n"
+            "\t'find' - searches for a customer\n"
+            "\t\targuments: 'one of the customer arguments' 'argument value'\n"
+            "\t'update' - update a customer\n"
+            "\t\targuments: customer_id full_name position name_of_the_organization email phone\n"
+            "\t'delete' - removes customer\n"
+            "\t\targuments: customer_id\n"
+            "\t'list' - displays a list of customers sorted by the listed arguments\n"
+            "\t\targuments: 'any number of customer arguments separated by a space'\n"
+        )
+
+
+class InsertCommand(Command):
     def __init__(self):
-        self.customer_service = CustomerService()
-        self.xml_service = XMLService
-        self.validator = Validator()
+        self.expected_arguments = [
+            "customer_id",
+            "full_name",
+            "position",
+            "name_of_the_organization",
+            "email",
+            "phone"
+        ]
 
-    def chek_use_file(self, file_name):
-        use_file = False
-        if file_name is not None:
-            if not os.path.exists(file_name):
-                self.xml_service.create_file(file_name)
-            use_file = True
-        return use_file
-
-    def parse_command(self, file_name, command, arguments):
-        use_file = self.chek_use_file(file_name)
-
-        if command == Command.HELP:
-            print(command.HELP.description)
-        elif command == Command.EXIT:
-            raise SystemExit
-        elif command == Command.INSERT:
-            valid_arguments = dict()
-            valid_arguments['customer_id'] = arguments[0]
-            valid_arguments['full_name'] = arguments[1]
-            valid_arguments['position'] = arguments[2]
-            valid_arguments['name_of_the_organization'] = arguments[3]
-            valid_arguments['email'] = arguments[4]
-            valid_arguments['phone'] = arguments[5]
-            if self.validator.validate_data(valid_arguments):
-                try:
-                    if use_file:
-                        self.xml_service.insert_customer(file_name, arguments)
-                    else:
-                        self.customer_service.insert_customer(*arguments)
-                except TypeError:
-                    print(command.INSERT.description)
-        elif command == Command.UPDATE:
-            valid_arguments = dict()
-            valid_arguments['customer_id'] = arguments[0]
-            valid_arguments['full_name'] = arguments[1]
-            valid_arguments['position'] = arguments[2]
-            valid_arguments['name_of_the_organization'] = arguments[3]
-            valid_arguments['email'] = arguments[4]
-            valid_arguments['phone'] = arguments[5]
-            if self.validator.validate_data(valid_arguments):
-                try:
-                    if use_file:
-                        self.xml_service.update_customer(file_name, arguments)
-                    else:
-                        self.customer_service.update_customer(*arguments)
-                except TypeError:
-                    print(command.UPDATE.description)
-        elif command == Command.DELETE:
-            valid_arguments = dict()
-            valid_arguments['customer_id'] = arguments[0]
-            if self.validator.validate_data(valid_arguments):
-                try:
-                    if use_file:
-                        self.xml_service.delete_customer(file_name, *arguments)
-                    else:
-                        self.customer_service.delete_customer(*arguments)
-                except TypeError:
-                    print(command.DELETE.description)
-        elif command == Command.LIST:
-            if self.validator.validate_data_for_list(arguments):
-                try:
-                    if use_file:
-                        customers = self.xml_service.get_everything(file_name, arguments)
-                        for customer in customers:
-                            print(*customer, sep='\t', end='\n')
-                    else:
-                        list_of_customer = self.customer_service.list_of_customer(arguments)
-                        print(*list_of_customer, sep='\n')
-                except TypeError:
-                    print(command.LIST.description)
-        elif command == Command.FIND:
-            valid_arguments = dict()
-            argument_name, argument_value = arguments[0], arguments[1]
-            valid_arguments[argument_name] = argument_value
-            if self.validator.validate_data(valid_arguments):
-                try:
-                    if use_file:
-                        customer = self.xml_service.find_customer(file_name, *arguments)
-                        print(*customer, sep='\t')
-                    else:
-                        customer = self.customer_service.find_customer(*arguments)
-                        print(customer)
-                except TypeError:
-                    print(command.FIND.description)
+    def execute(self, customer_service):
+        arguments = []
+        try:
+            for argument in self.expected_arguments:
+                argument_value = input(f"{argument}:")
+                if not Validator.validate_data(argument, argument_value):
+                    raise ValidateException()
+                arguments.append(argument_value)
+        except ValidateException:
+            return
         else:
-            print('Invalid command!')
+            customer_service.create_customer(*arguments)
+
+
+class FindCommand(Command):
+
+    def __init__(self):
+        self.expected_arguments = ["arguments name"]
+
+    def execute(self, customer_service):
+        arguments = []
+        try:
+            for argument in self.expected_arguments:
+                argument_name = input(f"{argument}:")
+                argument_value = input(f"argument value:")
+                if not Validator.validate_data(argument_name, argument_value):
+                    raise ValidateException()
+                arguments.append(argument_name)
+                arguments.append(argument_value)
+        except ValidateException:
+            return
+        else:
+            customer_service.display_customer_details(*arguments)
+
+
+class UpdateCommand(Command):
+
+    def __init__(self):
+        self.expected_arguments = ["customer_id", "full_name", "position", "name_of_the_organization", "email", "phone"]
+
+    def execute(self, customer_service):
+        arguments = []
+        try:
+            for argument in self.expected_arguments:
+                argument_value = input(f"{argument}:")
+                if not Validator.validate_data(argument, argument_value):
+                    raise ValidateException()
+                arguments.append(argument_value)
+        except ValidateException:
+            return
+        else:
+            customer_service.update_customer(*arguments)
+
+
+class DeleteCommand(Command):
+
+    def __init__(self):
+        self.expected_arguments = ["customer_id"]
+
+    def execute(self, customer_service):
+        arguments = []
+        try:
+            for argument in self.expected_arguments:
+                argument_value = input(f"{argument}:")
+                if not Validator.validate_data(argument, argument_value):
+                    raise ValidateException()
+                arguments.append(argument_value)
+        except ValidateException:
+            return
+        else:
+            customer_service.remove_customer(*arguments)
+
+
+class ListCommand(Command):
+
+    def __init__(self):
+        self.expected_arguments = ["arguments name"]
+
+    def execute(self, customer_service):
+        arguments = []
+        try:
+            for argument in self.expected_arguments:
+                arguments_valid = input(f"{argument}:").split()
+                if arguments_valid is not None:
+                    for argument_valid in arguments_valid:
+                        arguments.append(argument_valid)
+            if len(arguments) > 0:
+                if not Validator.validate_data_for_list(arguments):
+                    raise ValidateException()
+        except ValidateException:
+            return
+        else:
+            customer_service.display_customer_data(arguments)
