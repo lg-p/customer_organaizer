@@ -1,4 +1,5 @@
 from operator import attrgetter
+from handbook.customer_service import StorageStrategy
 
 
 class Customer:
@@ -34,7 +35,7 @@ class Customer:
         self.phone = phone
 
 
-class CustomerService:
+class InMemoryService(StorageStrategy):
     def __init__(self):
         self.customers = []
 
