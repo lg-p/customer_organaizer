@@ -16,7 +16,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_string(value)
 
         # THEN
-        self.assertEqual(valid_string, True)
+        self.assertTrue(valid_string)
 
     def test_validate_string_false(self):
         # GIVEN
@@ -26,7 +26,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_string(value)
 
         # THEN
-        self.assertEqual(valid_string, False)
+        self.assertFalse(valid_string)
 
     def test_validate_limited_length_string_true(self):
         # GIVEN
@@ -36,7 +36,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_limited_length_string(value)
 
         # THEN
-        self.assertEqual(valid_string, True)
+        self.assertTrue(valid_string)
 
     def test_validate_number_true(self):
         # GIVEN
@@ -46,7 +46,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_number(value)
 
         # THEN
-        self.assertEqual(valid_string, True)
+        self.assertTrue(valid_string)
 
     def test_validate_number_false(self):
         # GIVEN
@@ -56,7 +56,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_number(value)
 
         # THEN
-        self.assertEqual(valid_string, False)
+        self.assertFalse(valid_string)
 
     def test_validate_email_true(self):
         # GIVEN
@@ -66,7 +66,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_email(value)
 
         # THEN
-        self.assertEqual(valid_string, True)
+        self.assertTrue(valid_string)
 
     def test_validate_email_false(self):
         # GIVEN
@@ -76,7 +76,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_email(value)
 
         # THEN
-        self.assertEqual(valid_string, False)
+        self.assertFalse(valid_string)
 
     def test_validate_phone_true(self):
         # GIVEN
@@ -86,7 +86,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_phone(value)
 
         # THEN
-        self.assertEqual(valid_string, True)
+        self.assertTrue(valid_string)
 
     def test_validate_phone_len_false(self):
         # GIVEN
@@ -96,7 +96,7 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_phone(value)
 
         # THEN
-        self.assertEqual(valid_string, False)
+        self.assertFalse(valid_string)
 
     def test_validate_phone_false(self):
         # GIVEN
@@ -106,29 +106,29 @@ class TestValidator(unittest.TestCase):
         valid_string = self.validator.validate_phone(value)
 
         # THEN
-        self.assertEqual(valid_string, False)
+        self.assertFalse(valid_string)
 
     def test_validate_data_true(self):
         # GIVEN
-        arguments = dict()
-        arguments['customer_id'] = '000000001'
+        argument_name = 'customer_id'
+        argument_value = '000000001'
 
         # WHEN
-        result = self.validator.validate_data(arguments)
+        result = self.validator.validate_data(argument_name, argument_value)
 
         # THEN
-        self.assertEqual(result, True)
+        self.assertTrue(result)
 
     def test_validate_data_false(self):
         # GIVEN
-        arguments = dict()
-        arguments['customer_id'] = 'RE0000001'
+        argument_name = 'customer_id'
+        argument_value = 'RE0000001'
 
         # WHEN
-        result = self.validator.validate_data(arguments)
+        result = self.validator.validate_data(argument_name, argument_value)
 
         # THEN
-        self.assertEqual(result, False)
+        self.assertFalse(result)
 
     def test_validate_data_for_list_true(self):
         # GIVEN
@@ -138,7 +138,7 @@ class TestValidator(unittest.TestCase):
         result = self.validator.validate_data_for_list(arguments)
 
         # THEN
-        self.assertEqual(result, True)
+        self.assertTrue(result)
 
     def test_validate_data_for_list_false(self):
         # GIVEN
@@ -148,7 +148,7 @@ class TestValidator(unittest.TestCase):
         result = self.validator.validate_data_for_list(arguments)
 
         # THEN
-        self.assertEqual(result, False)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
