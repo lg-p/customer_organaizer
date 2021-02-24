@@ -1,34 +1,38 @@
 import re
 
 
+class ValidateException(Exception):
+    pass
+
+
 class Validator:
-    def validate_data(self, arguments):
-        for name, value in arguments.items():
-            if name == 'customer_id':
-                if not self.validate_number(value):
-                    print(f"{name} must be 9 digits long")
-                    return False
-            elif name == 'full_name' or name == 'position':
-                if not self.validate_string(value):
-                    print(f"{name} must be up to 120 letters long")
-                    return False
-            elif name == 'name_of_the_organization':
-                if not self.validate_limited_length_string(value):
-                    print(f"{name} must be up to 120 characters long")
-                    return False
-            elif name == 'email':
-                if not self.validate_email(value):
-                    print("Invalid email template")
-                    return False
-            elif name == 'phone':
-                if not self.validate_phone(value):
-                    print(f"{name} must be no more than 11 digits")
-                    return False
+    @classmethod
+    def validate_data(cls, name, value):
+        if name == "customer_id":
+            if not cls.validate_number(value):
+                print(f"{name} must be 9 digits long")
+                return False
+        elif name == "full_name" or name == "position":
+            if not cls.validate_string(value):
+                print(f"{name} must be up to 120 letters long")
+                return False
+        elif name == "name_of_the_organization":
+            if not cls.validate_limited_length_string(value):
+                print(f"{name} must be up to 120 characters long")
+                return False
+        elif name == "email":
+            if not cls.validate_email(value):
+                print("Invalid email template")
+                return False
+        elif name == "phone":
+            if not cls.validate_phone(value):
+                print(f"{name} must be no more than 11 digits")
+                return False
         return True
 
     @staticmethod
     def validate_data_for_list(arguments):
-        available_arguments = ['customer_id', 'full_name', 'position', 'name_of_the_organization', 'email phone']
+        available_arguments = ["customer_id", "full_name", "position", "name_of_the_organization", "email", "phone"]
         for argument in arguments:
             if argument not in available_arguments:
                 print(f"'list' command has no argument: {argument}")
