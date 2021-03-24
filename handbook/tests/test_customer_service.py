@@ -1,121 +1,168 @@
 import unittest
+from operator import eq
+from unittest.mock import patch, Mock
 
-from handbook.customer_service import InMemoryService, Customer
+
+from handbook.customer_service import Customer, CustomerService
 
 
 class TestCustomerService(unittest.TestCase):
     def setUp(self) -> None:
-        self.customer_service = InMemoryService()
+        self.customer_id = "000000001"
+        self.full_name = "Ivanov Vasyl"
+        self.position = "developer"
+        self.name_of_the_organization = "FGH-2000"
+        self.email = "vasyl@mail.ru"
+        self.phone = "79278763423"
 
-    def test_insert_customer(self):
+    @patch('handbook.customer_service.StorageStrategy')
+    def test_create_customer(self, MockStorageStrategy: Mock) -> None:
         # GIVEN
-        customer_id = "000000001"
-        full_name = "Ivanov Vasyl"
-        position = "developer"
-        name_of_the_organization = "FGH-2000"
-        email = "vasyl@mail.ru"
-        phone = "79278763423"
+        expected_customer = Customer(self.customer_id,
+                                     self.full_name,
+                                     self.position,
+                                     self.name_of_the_organization,
+                                     self.email,
+                                     self.phone
+                                     )
+        customer_storage_mock = MockStorageStrategy()
+        customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
-        self.customer_service.insert_customer(customer)
+        customer_service.create_customer(self.customer_id,
+                                         self.full_name,
+                                         self.position,
+                                         self.name_of_the_organization,
+                                         self.email,
+                                         self.phone
+                                         )
 
         # THEN
-        self.assertIn(customer, self.customer_service.customers)
+        self.assertTrue(customer_storage_mock.insert_customer.assert_called_once)
 
-    def test_find_customer(self):
+        customer_to_insert = customer_storage_mock.insert_customer.call_args.args[0]
+        self.assertTrue(eq(expected_customer, customer_to_insert))
+
+    @patch('handbook.customer_service.StorageStrategy')
+    def test_display_customer_details(self, MockStorageStrategy: Mock) -> None:
         # GIVEN
-        customer_id = "000000001"
-        full_name = "Ivanov Vasyl"
-        position = "developer"
-        name_of_the_organization = "FGH-2000"
-        email = "vasyl@mail.ru"
-        phone = "79278763423"
-
-        customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
-        self.customer_service.insert_customer(customer)
+        expected_customer = Customer(self.customer_id,
+                                     self.full_name,
+                                     self.position,
+                                     self.name_of_the_organization,
+                                     self.email,
+                                     self.phone
+                                     )
+        customer_storage_mock = MockStorageStrategy()
+        customer_storage_mock.find_customer.return_value = expected_customer
+        customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        customer = self.customer_service.find_customer("customer_id", customer_id)
+        customer_service.display_customer_details("customer_id", self.customer_id)
 
         # THEN
-        self.assertIsNotNone(customer)
+        self.assertTrue(customer_storage_mock.find_customer.assert_called_once)
 
-    def test_update_customer(self):
+    @patch('handbook.customer_service.StorageStrategy')
+    def test_update_customer(self, MockStorageStrategy: Mock) -> None:
         # GIVEN
-        customer_id = "000000001"
-        full_name = "Ivanov Vasyl"
-        position = "developer"
-        name_of_the_organization = "FGH-2000"
-        email = "vasyl@mail.ru"
-        phone = "79278763423"
-
-        customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
-        self.customer_service.insert_customer(customer)
-
-        # WHEN
+        expected_customer = Customer(self.customer_id,
+                                     self.full_name,
+                                     self.position,
+                                     self.name_of_the_organization,
+                                     self.email,
+                                     self.phone
+                                     )
         new_phone = "79278763447"
-        self.customer_service.update_customer(customer, full_name, position, name_of_the_organization, email,
-                                              new_phone)
 
-        # THEN
-        customer = self.customer_service.find_customer("customer_id", customer_id)
-        self.assertEqual(customer.phone, new_phone)
-
-    def test_delete_customer(self):
-        # GIVEN
-        customer_id = "000000001"
-        full_name = "Ivanov Vasyl"
-        position = "developer"
-        name_of_the_organization = "FGH-2000"
-        email = "vasyl@mail.ru"
-        phone = "79278763423"
-
-        customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
-        self.customer_service.insert_customer(customer)
+        customer_storage_mock = MockStorageStrategy()
+        customer_storage_mock.find_customer.return_value = expected_customer
+        customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        self.customer_service.delete_customer(customer)
+        customer_service.update_customer(self.customer_id,
+                                         self.full_name,
+                                         self.position,
+                                         self.name_of_the_organization,
+                                         self.email,
+                                         new_phone
+                                         )
 
         # THEN
-        customer = self.customer_service.find_customer("customer_id", customer_id)
-        self.assertIsNone(customer)
+        self.assertTrue(customer_storage_mock.update_customer.assert_called_once)
 
-    def test_list_of_customer(self):
+        updated_phone = customer_storage_mock.update_customer.call_args.args[5]
+        self.assertEqual(updated_phone, new_phone)
+
+        customer_to_update = customer_storage_mock.update_customer.call_args.args[0]
+        self.assertTrue(eq(expected_customer, customer_to_update))
+
+    @patch('handbook.customer_service.StorageStrategy')
+    def test_remove_customer(self, MockStorageStrategy: Mock) -> None:
         # GIVEN
-        customer_id = "000000001"
-        full_name = "Ivanov Vasyl"
-        position = "developer"
-        name_of_the_organization = "FGH-2000"
-        email = "vasyl@mail.ru"
-        phone = "79278763423"
-
-        customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
-        self.customer_service.insert_customer(customer)
+        expected_customer = Customer(self.customer_id,
+                                     self.full_name,
+                                     self.position,
+                                     self.name_of_the_organization,
+                                     self.email,
+                                     self.phone
+                                     )
+        customer_storage_mock = MockStorageStrategy()
+        customer_storage_mock.find_customer.return_value = expected_customer
+        customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        list_of_customer = self.customer_service.list_of_customer([])
+        customer_service.remove_customer(self.customer_id)
 
         # THEN
-        self.assertIn(customer, list_of_customer)
+        self.assertTrue(customer_storage_mock.delete_customer.assert_called_once)
 
-    def test_list_of_customer_ordered(self):
+        customer_to_remove = customer_storage_mock.delete_customer.call_args.args[0]
+        self.assertTrue(eq(expected_customer, customer_to_remove))
+
+    @patch('handbook.customer_service.StorageStrategy')
+    def test_display_customer_data(self, MockStorageStrategy: Mock) -> None:
         # GIVEN
-        customer_id = "000000001"
-        full_name = "Ivanov Vasyl"
-        position = "developer"
-        name_of_the_organization = "FGH-2000"
-        email = "vasyl@mail.ru"
-        phone = "79278763423"
-
-        customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
-        self.customer_service.insert_customer(customer)
+        expected_customer = Customer(self.customer_id,
+                                     self.full_name,
+                                     self.position,
+                                     self.name_of_the_organization,
+                                     self.email,
+                                     self.phone
+                                     )
+        customer_storage_mock = MockStorageStrategy()
+        customer_storage_mock.list_of_customer.return_value = [expected_customer]
+        customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        list_of_customer = self.customer_service.list_of_customer(["full_name"])
+        customer_service.display_customer_data([])
 
         # THEN
-        self.assertIn(customer, list_of_customer)
+        self.assertTrue(customer_storage_mock.list_of_customer.assert_called_once)
+
+    @patch('handbook.customer_service.StorageStrategy')
+    def test_display_customer_data_ordered(self, MockStorageStrategy: Mock) -> None:
+        # GIVEN
+        expected_customer = Customer(self.customer_id,
+                                     self.full_name,
+                                     self.position,
+                                     self.name_of_the_organization,
+                                     self.email,
+                                     self.phone
+                                     )
+        customer_storage_mock = MockStorageStrategy()
+        customer_storage_mock.list_of_customer.return_value = [expected_customer]
+        customer_service = CustomerService(customer_storage_mock)
+
+        # WHEN
+        list_options = ["full_name"]
+        customer_service.display_customer_data(list_options)
+
+        # THEN
+        self.assertTrue(customer_storage_mock.list_of_customer.assert_called_once)
+
+        params = customer_storage_mock.list_of_customer.call_args.args[0]
+        self.assertEqual(params, list_options)
 
 
 if __name__ == '__main__':
