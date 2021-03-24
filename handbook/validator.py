@@ -7,7 +7,7 @@ class ValidateException(Exception):
 
 class Validator:
     @classmethod
-    def validate_data(cls, name, value):
+    def validate_data(cls, name: str, value: str) -> bool:
         if name == "customer_id":
             if not cls.validate_number(value):
                 print(f"{name} must be 9 digits long")
@@ -31,7 +31,7 @@ class Validator:
         return True
 
     @staticmethod
-    def validate_data_for_list(arguments):
+    def validate_data_for_list(arguments: list) -> bool:
         available_arguments = ["customer_id", "full_name", "position", "name_of_the_organization", "email", "phone"]
         for argument in arguments:
             if argument not in available_arguments:
@@ -40,31 +40,31 @@ class Validator:
         return True
 
     @staticmethod
-    def validate_string(value):
+    def validate_string(value: str) -> bool:
         if re.fullmatch(r"^[a-zA-Zа-яА-я ]{1,120}$", value):
             return True
         return False
 
     @staticmethod
-    def validate_limited_length_string(value):
+    def validate_limited_length_string(value: str) -> bool:
         if re.fullmatch(r"^[0-9a-zA-Zа-яА-я\S ]{1,120}$", value):
             return True
         return False
 
     @staticmethod
-    def validate_number(value):
+    def validate_number(value: str) -> bool:
         if re.match(r"^[0-9]{9}$", value):
             return True
         return False
 
     @staticmethod
-    def validate_email(value):
+    def validate_email(value: str) -> bool:
         if re.match(r"[\w'.+-]+@[\w'.+-]+", value):
             return True
         return False
 
     @staticmethod
-    def validate_phone(value):
+    def validate_phone(value: str) -> bool:
         if re.match(r"^[0-9]{11}$", value):
             return True
         return False
