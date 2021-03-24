@@ -4,11 +4,10 @@ from handbook.validator import Validator
 
 
 class TestValidator(unittest.TestCase):
-
     def setUp(self) -> None:
         self.validator = Validator()
 
-    def test_validate_string_true(self):
+    def test_validate_string_true(self) -> True:
         # GIVEN
         value = 'Validate'
 
@@ -18,7 +17,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(valid_string)
 
-    def test_validate_string_false(self):
+    def test_validate_string_false(self) -> False:
         # GIVEN
         value = '1231_+=!@#$%^&*()<>'
 
@@ -28,7 +27,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertFalse(valid_string)
 
-    def test_validate_limited_length_string_true(self):
+    def test_validate_limited_length_string_true(self) -> True:
         # GIVEN
         value = '"COMPANY-3567"'
 
@@ -38,7 +37,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(valid_string)
 
-    def test_validate_number_true(self):
+    def test_validate_number_true(self) -> True:
         # GIVEN
         value = '256469628'
 
@@ -48,7 +47,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(valid_string)
 
-    def test_validate_number_false(self):
+    def test_validate_number_false(self) -> False:
         # GIVEN
         value = '2564696_R'
 
@@ -58,7 +57,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertFalse(valid_string)
 
-    def test_validate_email_true(self):
+    def test_validate_email_true(self) -> True:
         # GIVEN
         value = 'my_mail@mail.ru'
 
@@ -68,7 +67,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(valid_string)
 
-    def test_validate_email_false(self):
+    def test_validate_email_false(self) -> False:
         # GIVEN
         value = 'my_mail65mail.ru'
 
@@ -78,7 +77,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertFalse(valid_string)
 
-    def test_validate_phone_true(self):
+    def test_validate_phone_true(self) -> False:
         # GIVEN
         value = '79863452345'
 
@@ -88,7 +87,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(valid_string)
 
-    def test_validate_phone_len_false(self):
+    def test_validate_phone_len_false(self) -> False:
         # GIVEN
         value = '798634523'
 
@@ -98,7 +97,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertFalse(valid_string)
 
-    def test_validate_phone_false(self):
+    def test_validate_phone_false(self) -> False:
         # GIVEN
         value = '798634523_R'
 
@@ -108,7 +107,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertFalse(valid_string)
 
-    def test_validate_data_true(self):
+    def test_validate_data_true(self) -> True:
         # GIVEN
         argument_name = 'customer_id'
         argument_value = '000000001'
@@ -119,7 +118,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(result)
 
-    def test_validate_data_false(self):
+    def test_validate_data_false(self) -> False:
         # GIVEN
         argument_name = 'customer_id'
         argument_value = 'RE0000001'
@@ -130,7 +129,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertFalse(result)
 
-    def test_validate_data_for_list_true(self):
+    def test_validate_data_for_list_true(self) -> True:
         # GIVEN
         arguments = ['customer_id']
 
@@ -140,7 +139,7 @@ class TestValidator(unittest.TestCase):
         # THEN
         self.assertTrue(result)
 
-    def test_validate_data_for_list_false(self):
+    def test_validate_data_for_list_false(self) -> False:
         # GIVEN
         arguments = ['customer']
 

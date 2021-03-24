@@ -5,21 +5,18 @@ from handbook.validator import Validator, ValidateException
 
 
 class Command(ABC):
-
     @abstractmethod
     def execute(self, customer_service: CustomerService) -> None:
         pass
 
 
 class ExitCommand(Command):
-
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> SystemExit:
         raise SystemExit
 
 
 class HelpCommand(Command):
-
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> print:
         print(
             "The program is designed to store, view and edit customer data\n"
             "Commands:\n"
@@ -37,7 +34,7 @@ class HelpCommand(Command):
 
 
 class InsertCommand(Command):
-    def __init__(self):
+    def __init__(self) -> None:
         self.expected_arguments = [
             "customer_id",
             "full_name",
@@ -47,7 +44,7 @@ class InsertCommand(Command):
             "phone"
         ]
 
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> None:
         arguments = []
         try:
             for argument in self.expected_arguments:
@@ -62,11 +59,10 @@ class InsertCommand(Command):
 
 
 class FindCommand(Command):
-
-    def __init__(self):
+    def __init__(self) -> None:
         self.expected_arguments = ["arguments name"]
 
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> None:
         arguments = []
         try:
             for argument in self.expected_arguments:
@@ -83,11 +79,10 @@ class FindCommand(Command):
 
 
 class UpdateCommand(Command):
-
-    def __init__(self):
+    def __init__(self) -> None:
         self.expected_arguments = ["customer_id", "full_name", "position", "name_of_the_organization", "email", "phone"]
 
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> None:
         arguments = []
         try:
             for argument in self.expected_arguments:
@@ -102,11 +97,10 @@ class UpdateCommand(Command):
 
 
 class DeleteCommand(Command):
-
-    def __init__(self):
+    def __init__(self) -> None:
         self.expected_arguments = ["customer_id"]
 
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> None:
         arguments = []
         try:
             for argument in self.expected_arguments:
@@ -121,11 +115,10 @@ class DeleteCommand(Command):
 
 
 class ListCommand(Command):
-
     def __init__(self):
         self.expected_arguments = ["arguments name"]
 
-    def execute(self, customer_service):
+    def execute(self, customer_service: CustomerService) -> None:
         arguments = []
         try:
             for argument in self.expected_arguments:

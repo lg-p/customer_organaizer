@@ -1,1 +1,6 @@
-__all__ = ["in_memory_service", "validator", "xml_service"]
+__all__ = [
+    "command_parser",
+    "customer_service",
+    "database_connection",
+    "validator"
+]
