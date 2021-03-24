@@ -3,31 +3,12 @@ from abc import ABC, abstractmethod
 from xml.etree import ElementTree
 from operator import attrgetter
 
-
-class StorageStrategy(ABC):
-    @abstractmethod
-    def insert_customer(self, customer):
-        pass
-
-    @abstractmethod
-    def find_customer(self, argument_name, argument_value):
-        pass
-
-    @abstractmethod
-    def update_customer(self, customer_id, full_name, position, name_of_the_organization, email, phone):
-        pass
-
-    @abstractmethod
-    def delete_customer(self, customer_id):
-        pass
-
-    @abstractmethod
-    def list_of_customer(self, sort_params):
-        pass
+from handbook.database_connection import create_connection
 
 
 class Customer:
-    def __init__(self, customer_id, full_name, position, name_of_the_organization, email, phone):
+    def __init__(self, customer_id: str, full_name: str, position: str, name_of_the_organization: str, email: str,
+                 phone: str) -> None:
         self.customer_id = customer_id
         self.full_name = full_name
         self.position = position
@@ -35,7 +16,7 @@ class Customer:
         self.email = email
         self.phone = phone
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '\t'.join([self.customer_id,
                           self.full_name,
                           self.position,
@@ -43,7 +24,7 @@ class Customer:
                           self.email,
                           self.phone])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '\t'.join([self.customer_id,
                           self.full_name,
                           self.position,
@@ -51,7 +32,11 @@ class Customer:
                           self.email,
                           self.phone])
 
-    def update(self, full_name, position, name_of_the_organization, email, phone):
+    def __eq__(self, other) -> bool:
+        return isinstance(other, Customer) \
+               and self.customer_id == other.customer_id
+
+    def update(self, full_name: str, position: str, name_of_the_organization: str, email: str, phone: str):
         self.full_name = full_name
         self.position = position
         self.name_of_the_organization = name_of_the_organization
@@ -59,32 +44,56 @@ class Customer:
         self.phone = phone
 
 
-class InMemoryService(StorageStrategy):
-    def __init__(self):
+class StorageStrategy(ABC):
+    @abstractmethod
+    def insert_customer(self, customer: Customer) -> None:
+        pass
+
+    @abstractmethod
+    def find_customer(self, argument_name: str, argument_value: str) -> Customer:
+        pass
+
+    @abstractmethod
+    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
+                        email: str, phone: str) -> None:
+        pass
+
+    @abstractmethod
+    def delete_customer(self, customer: Customer) -> None:
+        pass
+
+    @abstractmethod
+    def list_of_customer(self, sort_params: list) -> list:
+        pass
+
+
+class InMemoryStorage(StorageStrategy):
+    def __init__(self) -> None:
         self.customers = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '\n'.join(self.customers)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '\n'.join(self.customers)
 
-    def insert_customer(self, customer):
+    def insert_customer(self, customer: Customer) -> None:
         self.customers.append(customer)
 
-    def find_customer(self, argument_name, argument_value):
+    def find_customer(self, argument_name: str, argument_value: str) -> Customer:
         for customer in self.customers:
             for attribute_name, attribute_value in customer.__dict__.items():
                 if attribute_name == argument_name and attribute_value == argument_value:
                     return customer
 
-    def update_customer(self, customer, full_name, position, name_of_the_organization, email, phone):
+    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
+                        email: str, phone: str) -> None:
         customer.update(full_name, position, name_of_the_organization, email, phone)
 
     def delete_customer(self, customer):
         self.customers.remove(customer)
 
-    def list_of_customer(self, sort_params):
+    def list_of_customer(self, sort_params: list) -> list:
         if len(sort_params) == 0:
             return self.customers
         else:
@@ -92,16 +101,15 @@ class InMemoryService(StorageStrategy):
             return order_customers
 
 
-class XMLService(StorageStrategy):
-
-    def __init__(self, file_name):
+class XMLStorage(StorageStrategy):
+    def __init__(self, file_name: str) -> None:
         if not os.path.exists(file_name):
             root = ElementTree.Element('data')
             tree = ElementTree.ElementTree(root)
             tree.write(file_name)
         self.file_name = file_name
 
-    def insert_customer(self, customer):
+    def insert_customer(self, customer: Customer) -> None:
         tree = ElementTree.parse(self.file_name)
         root = tree.getroot()
         element_customer = ElementTree.Element("customer")
@@ -127,7 +135,7 @@ class XMLService(StorageStrategy):
 
         tree.write(self.file_name)
 
-    def find_customer(self, argument_name, argument_value):
+    def find_customer(self, argument_name: str, argument_value: str) -> Customer:
         found = False
 
         tree = ElementTree.parse(self.file_name)
@@ -152,7 +160,8 @@ class XMLService(StorageStrategy):
             if found:
                 return Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
 
-    def update_customer(self, customer, full_name, position, name_of_the_organization, email, phone):
+    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
+                        email: str, phone: str) -> None:
         tree = ElementTree.parse(self.file_name)
         root = tree.getroot()
         for element_customer in root:
@@ -173,7 +182,7 @@ class XMLService(StorageStrategy):
                             attribute.text = phone
         tree.write(self.file_name)
 
-    def delete_customer(self, customer):
+    def delete_customer(self, customer: Customer) -> None:
         found = False
         tree = ElementTree.parse(self.file_name)
         root = tree.getroot()
@@ -186,7 +195,7 @@ class XMLService(StorageStrategy):
                 tree.write(self.file_name)
                 return
 
-    def list_of_customer(self, sort_params):
+    def list_of_customer(self, sort_params: list) -> list:
         customers_all = []
         customer_id, full_name, position, name_of_the_organization, email, phone = '', '', '', '', '', ''
 
@@ -214,33 +223,100 @@ class XMLService(StorageStrategy):
             return customers_all
 
 
+class DataBaseStorage(StorageStrategy):
+    def __init__(self, db_name: str, db_user: str, db_password: str, db_host: str, db_port: str) -> None:
+        self.connection = create_connection(db_name, db_user, db_password, db_host, db_port)
+
+    def insert_customer(self, customer: Customer) -> None:
+        query = (
+            f"""INSERT INTO customers (customer_id, full_name, position, name_of_the_organization, email, phone) 
+            VALUES (
+                    '{customer.customer_id}', 
+                    '{customer.full_name}',
+                    '{customer.position}',
+                    '{customer.name_of_the_organization}',
+                    '{customer.email}',
+                    '{customer.phone}'
+                    );"""
+                )
+        self.connection.autocommit = True
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+
+    def find_customer(self, argument_name: str, argument_value: str) -> str:
+        query = f"SELECT * from customers WHERE customers.{argument_name} = '{argument_value}';"
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchone()
+        return result
+
+    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
+                        email: str, phone: str) -> None:
+        query = f"""UPDATE customers 
+                SET 
+                    full_name = '{full_name}',
+                    position = '{position}',
+                    name_of_the_organization = '{name_of_the_organization}',
+                    email = '{email}',
+                    phone = '{phone}'
+                WHERE customer_id = '{customer.customer_id}';"""
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+
+    def delete_customer(self, customer: Customer) -> None:
+        query = f"DELETE FROM customers WHERE customer_id = '{customer.customer_id}'"
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+
+    def list_of_customer(self, sort_params: list) -> list:
+        if len(sort_params) == 0:
+            query = "SELECT * from customers;"
+        else:
+            param = ",".join(sort_params)
+            query = f"SELECT * from customers ORDER BY {param};"
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return result
+
+
 class CustomerService:
-    def __init__(self, storage):
+    def __init__(self, storage: StorageStrategy) -> None:
         self._storage = storage
 
     @staticmethod
-    def storage(file_name):
-        if file_name is not None:
-            return XMLService
+    def storage(sys_arguments):
+        if sys_arguments.path is not None:
+            return XMLStorage(sys_arguments.path)
+        elif sys_arguments.db is not None:
+            return create_connection(
+                sys_arguments.db,
+                sys_arguments.user,
+                sys_arguments.password,
+                sys_arguments.host,
+                sys_arguments.port
+            )
         else:
-            return InMemoryService
+            return InMemoryStorage
 
-    def create_customer(self, customer_id, full_name, position, name_of_the_organization, email, phone):
+    def create_customer(self, customer_id: str, full_name: str, position: str, name_of_the_organization: str,
+                        email: str, phone: str) -> None:
         customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
         self._storage.insert_customer(customer)
 
-    def display_customer_details(self, argument_name, argument_value):
+    def display_customer_details(self, argument_name: str, argument_value: str) -> None:
         customer = self._storage.find_customer(argument_name, argument_value)
         print(customer)
 
-    def update_customer(self, customer_id, full_name, position, name_of_the_organization, email, phone):
+    def update_customer(self, customer_id: str, full_name: str, position: str, name_of_the_organization: str,
+                        email: str, phone: str) -> None:
         customer = self._storage.find_customer('customer_id', customer_id)
         self._storage.update_customer(customer, full_name, position, name_of_the_organization, email, phone)
 
-    def remove_customer(self, customer_id):
+    def remove_customer(self, customer_id: str) -> None:
         customer = self._storage.find_customer('customer_id', customer_id)
         self._storage.delete_customer(customer)
 
-    def display_customer_data(self, sort_params):
+    def display_customer_data(self, sort_params: list) -> None:
         customer_data = self._storage.list_of_customer(sort_params)
         print(*customer_data, sep='\n')
