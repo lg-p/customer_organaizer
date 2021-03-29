@@ -116,7 +116,7 @@ class TestValidator(unittest.TestCase):
         result = self.validator.validate_data(argument_name, argument_value)
 
         # THEN
-        self.assertTrue(result)
+        self.assertTrue(result.isSuccess)
 
     def test_validate_data_false(self) -> False:
         # GIVEN
@@ -127,7 +127,7 @@ class TestValidator(unittest.TestCase):
         result = self.validator.validate_data(argument_name, argument_value)
 
         # THEN
-        self.assertFalse(result)
+        self.assertFalse(result.isSuccess)
 
     def test_validate_data_for_list_true(self) -> True:
         # GIVEN
@@ -147,7 +147,7 @@ class TestValidator(unittest.TestCase):
         result = self.validator.validate_data_for_list(arguments)
 
         # THEN
-        self.assertFalse(result)
+        self.assertFalse(result.isSuccess)
 
 
 if __name__ == '__main__':
