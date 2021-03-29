@@ -3,7 +3,7 @@ from operator import eq
 from unittest.mock import patch, Mock
 
 
-from handbook.customer_service import Customer, CustomerService
+from handbook.customer_service import Customer, CustomerException, CustomerService
 
 
 class TestCustomerService(unittest.TestCase):
@@ -26,6 +26,7 @@ class TestCustomerService(unittest.TestCase):
                                      self.phone
                                      )
         customer_storage_mock = MockStorageStrategy()
+        customer_storage_mock.find_customer.return_value = None
         customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
@@ -44,6 +45,25 @@ class TestCustomerService(unittest.TestCase):
         self.assertTrue(eq(expected_customer, customer_to_insert))
 
     @patch('handbook.customer_service.StorageStrategy')
+    def test_create_customer_raise_exception(self, MockStorageStrategy: Mock) -> None:
+        # GIVEN
+        customer_storage_mock = MockStorageStrategy(side_effect=CustomerException)
+        customer_service = CustomerService(customer_storage_mock)
+
+        # WHEN
+        try:
+            customer_service.create_customer(self.customer_id,
+                                             self.full_name,
+                                             self.position,
+                                             self.name_of_the_organization,
+                                             self.email,
+                                             self.phone
+                                             )
+        except CustomerException:
+            # THEN
+            self.assertRaises(CustomerException)
+
+    @patch('handbook.customer_service.StorageStrategy')
     def test_display_customer_details(self, MockStorageStrategy: Mock) -> None:
         # GIVEN
         expected_customer = Customer(self.customer_id,
@@ -58,7 +78,7 @@ class TestCustomerService(unittest.TestCase):
         customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        customer_service.display_customer_details("customer_id", self.customer_id)
+        customer_service.find_customer("customer_id", self.customer_id)
 
         # THEN
         self.assertTrue(customer_storage_mock.find_customer.assert_called_once)
@@ -135,7 +155,7 @@ class TestCustomerService(unittest.TestCase):
         customer_service = CustomerService(customer_storage_mock)
 
         # WHEN
-        customer_service.display_customer_data([])
+        customer_service.get_list_of_customers([])
 
         # THEN
         self.assertTrue(customer_storage_mock.list_of_customer.assert_called_once)
@@ -156,7 +176,7 @@ class TestCustomerService(unittest.TestCase):
 
         # WHEN
         list_options = ["full_name"]
-        customer_service.display_customer_data(list_options)
+        customer_service.get_list_of_customers(list_options)
 
         # THEN
         self.assertTrue(customer_storage_mock.list_of_customer.assert_called_once)
