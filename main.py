@@ -2,7 +2,18 @@ import argparse
 
 from handbook.command_parser import ExitCommand, HelpCommand, InsertCommand, FindCommand, UpdateCommand, \
     DeleteCommand, ListCommand
-from handbook.customer_service import CustomerService
+from handbook.customer_service import CustomerException, CustomerService, StorageFactory
+from handbook.validator import ValidateException
+
+EXPECTED_COMMANDS = {
+    'exit': ExitCommand,
+    'help': HelpCommand,
+    'insert': InsertCommand,
+    'find': FindCommand,
+    'update': UpdateCommand,
+    'delete': DeleteCommand,
+    'list': ListCommand,
+}
 
 
 def main():
@@ -15,23 +26,23 @@ def main():
     arg_parser.add_argument('--port', type=str, help='port')
     args = arg_parser.parse_args()
 
-    storage = CustomerService.storage(args)
+    storage = StorageFactory.get_storage(args)
     customer_service = CustomerService(storage)
-
-    expected_commands = {
-        'exit': ExitCommand(),
-        'help': HelpCommand(),
-        'insert': InsertCommand(),
-        'find': FindCommand(),
-        'update': UpdateCommand(),
-        'delete': DeleteCommand(),
-        'list': ListCommand(),
-    }
 
     while True:
         input_command = input("Please enter the command:").split(maxsplit=1)
-        command = expected_commands[input_command[0]]
-        command.execute(customer_service)
+        try:
+            command = EXPECTED_COMMANDS[input_command[0]]()
+            command.execute(customer_service)
+        except KeyError:
+            print("INVALID COMMAND!\n")
+            EXPECTED_COMMANDS["help"]().execute(customer_service)
+        except ValidateException as e:
+            print("ERROR:", e)
+        except CustomerException as e:
+            print("ERROR:", e)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
