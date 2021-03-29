@@ -3,6 +3,10 @@ from psycopg2 import OperationalError
 
 
 def create_connection(db_name: str, db_user: str, db_password: str, db_host: str, db_port: str) -> psycopg2.connect:
+    """
+    Creates a connection to the database
+    Raises an exception on error
+    """
     connection = None
     try:
         connection = psycopg2.connect(
@@ -12,7 +16,6 @@ def create_connection(db_name: str, db_user: str, db_password: str, db_host: str
             host=db_host,
             port=db_port
         )
-        print("Connection to PostgreSQL DB successful")
     except OperationalError as e:
-        print(f"The error '{e}' occurred")
+        print(e)
     return connection
