@@ -490,6 +490,8 @@ class CustomerService:
         :return: None
         """
         customer = self._storage.find_customer('customer_id', customer_id)
+        if customer is None:
+            raise CustomerException("Customer does not exist")
         self._storage.update_customer(customer, full_name, position, name_of_the_organization, email, phone)
 
     def remove_customer(self, customer_id: str) -> None:
@@ -500,6 +502,8 @@ class CustomerService:
         :return: None
         """
         customer = self._storage.find_customer('customer_id', customer_id)
+        if customer is None:
+            raise CustomerException("Customer does not exist")
         self._storage.delete_customer(customer)
 
     def get_list_of_customers(self, sort_params: list) -> list:
