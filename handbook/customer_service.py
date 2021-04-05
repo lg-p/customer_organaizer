@@ -77,13 +77,7 @@ class StorageStrategy(ABC):
 
 class InMemoryStorage(StorageStrategy):
     def __init__(self) -> None:
-        self.customers = []
-
-    def __str__(self) -> str:
-        return '\n'.join(self.customers)
-
-    def __repr__(self) -> str:
-        return '\n'.join(self.customers)
+        self.customers = dict()
 
     def insert_customer(self, customer: Customer) -> None:
         """
@@ -91,7 +85,7 @@ class InMemoryStorage(StorageStrategy):
         :param customer: Customer
         :return: None
         """
-        self.customers.append(customer)
+        self.customers[customer.customer_id] = customer
 
     def find_customer(self, argument_name: str, argument_value: str) -> Customer:
         """
@@ -101,7 +95,9 @@ class InMemoryStorage(StorageStrategy):
         :param argument_value: the value of the argument to search for
         :return: Customer
         """
-        for customer in self.customers:
+        if argument_name == "customer_id":
+            return self.customers.get(argument_value)
+        for customer in self.customers.values():
             for attribute_name, attribute_value in customer.__dict__.items():
                 if attribute_name == argument_name and attribute_value == argument_value:
                     return customer
@@ -126,7 +122,7 @@ class InMemoryStorage(StorageStrategy):
         :param customer: Customer
         :return: None
         """
-        self.customers.remove(customer)
+        self.customers.pop(customer.customer_id)
 
     def list_of_customer(self, sort_params: list) -> list:
         """
@@ -135,10 +131,13 @@ class InMemoryStorage(StorageStrategy):
         :param sort_params: list of parameters for sorting
         :return: List
         """
+        customers_list = []
+        for customer in self.customers.values():
+            customers_list.append(customer)
         if len(sort_params) == 0:
-            return self.customers
+            return customers_list
         else:
-            order_customers = sorted(self.customers, key=attrgetter(*sort_params))
+            order_customers = sorted(customers_list, key=attrgetter(*sort_params))
             return order_customers
 
 

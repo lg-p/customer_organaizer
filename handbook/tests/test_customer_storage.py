@@ -28,7 +28,7 @@ class TestCustomerStorage(unittest.TestCase):
         self.customer_storage.insert_customer(expected_customer)
 
         # THEN
-        self.assertIn(expected_customer, self.customer_storage.customers)
+        self.assertIn(expected_customer, self.customer_storage.customers.values())
 
     def test_find_customer(self) -> None:
         # GIVEN
