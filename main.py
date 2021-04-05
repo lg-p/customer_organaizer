@@ -1,4 +1,5 @@
 import argparse
+from os import environ
 
 from handbook.command_parser import ExitCommand, HelpCommand, InsertCommand, FindCommand, UpdateCommand, \
     DeleteCommand, ListCommand
@@ -18,12 +19,12 @@ EXPECTED_COMMANDS = {
 
 def main():
     arg_parser = argparse.ArgumentParser(description='The program is designed to store, view and edit customer data')
-    arg_parser.add_argument('--path', type=str, help='XML file path')
-    arg_parser.add_argument('--db', type=str, help='database name')
-    arg_parser.add_argument('--user', type=str, help='user name')
-    arg_parser.add_argument('--password', type=str, help='password user')
-    arg_parser.add_argument('--host', type=str, help='host')
-    arg_parser.add_argument('--port', type=str, help='port')
+    arg_parser.add_argument('--path', type=str, default=environ.get('path'), help='XML file path')
+    arg_parser.add_argument('--db', type=str, default=environ.get('db'), help='database name')
+    arg_parser.add_argument('--user', type=str, default=environ.get('user'), help='user name')
+    arg_parser.add_argument('--password', type=str, default=environ.get('password'), help='password user')
+    arg_parser.add_argument('--host', type=str, default=environ.get('host'), help='host')
+    arg_parser.add_argument('--port', type=str, default=environ.get('port'), help='port')
     args = arg_parser.parse_args()
 
     storage = StorageFactory.get_storage(args)
