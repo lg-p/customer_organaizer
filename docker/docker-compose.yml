@@ -1,0 +1,28 @@
+version: "3.8"
+
+volumes:
+  database:
+
+services:
+  python:
+    build:
+      context: ..
+      dockerfile: docker/python/Dockerfile
+    depends_on:
+      - database
+
+  database:
+    image: postgres:12.6
+    restart: always
+    expose:
+      - 5432
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=handbook_user
+      - POSTGRES_PASSWORD=111111
+      - POSTGRES_HOST=postgres_db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=handbook
+    volumes:
+      - "database:/var/lib/postgresql/data/"
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
