@@ -61,7 +61,13 @@ class InsertCommand(Command):
             argument_value = input(f"{argument}:")
             validation_result = validator.validate_data(argument, argument_value)
             if not validation_result.isSuccess:
-                raise ValidateException(*validation_result.errors)
+                print(f"ERROR:", *validation_result.errors)
+                # In case of an error when checking the data,
+                # we will give the opportunity to repeat the input.
+                argument_value = input(f"Enter again {argument}:")
+                validation_result = validator.validate_data(argument, argument_value)
+                if not validation_result.isSuccess:
+                    raise ValidateException("The command could not be executed.")
             arguments.append(argument_value)
         customer_service.create_customer(*arguments)
 
@@ -111,7 +117,13 @@ class UpdateCommand(Command):
             argument_value = input(f"{argument}:")
             validation_result = validator.validate_data(argument, argument_value)
             if not validation_result.isSuccess:
-                raise ValidateException(*validation_result.errors)
+                print(f"ERROR:", *validation_result.errors)
+                # In case of an error when checking the data,
+                # we will give the opportunity to repeat the input.
+                argument_value = input(f"Enter again {argument}:")
+                validation_result = validator.validate_data(argument, argument_value)
+                if not validation_result.isSuccess:
+                    raise ValidateException("The command could not be executed.")
             arguments.append(argument_value)
         customer_service.update_customer(*arguments)
 
