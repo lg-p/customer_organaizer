@@ -59,13 +59,13 @@ class TestCustomerStorage(unittest.TestCase):
         self.customer_storage.insert_customer(expected_customer)
 
         # WHEN
-        new_phone = "79278763447"
-        self.customer_storage.update_customer(expected_customer, self.full_name, self.position,
-                                              self.name_of_the_organization, self.email, new_phone)
+        updatable_arguments = dict()
+        updatable_arguments["phone"] = "79278763447"
+        self.customer_storage.update_customer(expected_customer, updatable_arguments)
 
         # THEN
         customer = self.customer_storage.find_customer("customer_id", self.customer_id)
-        self.assertEqual(customer.phone, new_phone)
+        self.assertEqual(customer.phone, updatable_arguments["phone"])
 
     def test_delete_customer(self) -> None:
         # GIVEN
