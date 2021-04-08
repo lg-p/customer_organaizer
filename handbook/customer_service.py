@@ -36,12 +36,13 @@ class Customer:
         return isinstance(other, Customer) \
                and self.customer_id == other.customer_id
 
-    def update(self, full_name: str, position: str, name_of_the_organization: str, email: str, phone: str):
-        self.full_name = full_name
-        self.position = position
-        self.name_of_the_organization = name_of_the_organization
-        self.email = email
-        self.phone = phone
+    def update(self, updatable_arguments: dict) -> None:
+        self.full_name = updatable_arguments.get("full_name", self.full_name)
+        self.position = updatable_arguments.get("position", self.position)
+        self.name_of_the_organization = updatable_arguments.get("name_of_the_organization",
+                                                                self.name_of_the_organization)
+        self.email = updatable_arguments.get("email", self.email)
+        self.phone = updatable_arguments.get("phone", self.phone)
 
 
 class CustomerException(Exception):
@@ -62,8 +63,7 @@ class StorageStrategy(ABC):
         pass
 
     @abstractmethod
-    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
-                        email: str, phone: str) -> None:
+    def update_customer(self, customer: Customer, updatable_arguments: dict) -> None:
         pass
 
     @abstractmethod
@@ -102,19 +102,14 @@ class InMemoryStorage(StorageStrategy):
                 if attribute_name == argument_name and attribute_value == argument_value:
                     return customer
 
-    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
-                        email: str, phone: str) -> None:
+    def update_customer(self, customer: Customer, updatable_arguments: dict) -> None:
         """
         Updates the customer instance in the storage
         :param customer: Customer
-        :param full_name: surname, name, patronymic of the customer
-        :param position: customer position
-        :param name_of_the_organization: name of company
-        :param email: Customer email address
-        :param phone: customer's phone number
+        :param updatable_arguments: dict with updatable arguments
         :return: None
         """
-        customer.update(full_name, position, name_of_the_organization, email, phone)
+        customer.update(updatable_arguments)
 
     def delete_customer(self, customer: Customer) -> None:
         """
@@ -212,18 +207,12 @@ class XMLStorage(StorageStrategy):
             if found:
                 return Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
 
-    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
-                        email: str, phone: str) -> None:
+    def update_customer(self, customer: Customer, updatable_arguments: dict) -> None:
         """
         Updates the customer instance in the storage
         and writes the file
         :param customer: Customer
-        :param full_name: surname, name, patronymic of the customer
-        :param position: customer position
-        :param name_of_the_organization: name of company
-        :param email: Customer email address
-        :param phone: customer's phone number
-        :return: None
+        :param updatable_arguments: dict with updatable arguments
         """
         tree = ElementTree.parse(self.file_name)
         root = tree.getroot()
@@ -232,17 +221,18 @@ class XMLStorage(StorageStrategy):
                 if attr.tag == 'customer_id' and attr.text == customer.customer_id:
                     for attribute in element_customer:
                         if attribute.tag == 'customer_id':
-                            attribute.text = customer.customer_id
+                            attribute.text = updatable_arguments.get("customer_id", customer.customer_id)
                         elif attribute.tag == 'full_name':
-                            attribute.text = full_name
+                            attribute.text = updatable_arguments.get("full_name", customer.full_name)
                         elif attribute.tag == 'position':
-                            attribute.text = position
+                            attribute.text = updatable_arguments.get("position", customer.position)
                         elif attribute.tag == 'name_of_the_organization':
-                            attribute.text = name_of_the_organization
+                            attribute.text = updatable_arguments.get("name_of_the_organization",
+                                                                     customer.name_of_the_organization)
                         elif attribute.tag == 'email':
-                            attribute.text = email
+                            attribute.text = updatable_arguments.get("email", customer.email)
                         elif attribute.tag == 'phone':
-                            attribute.text = phone
+                            attribute.text = updatable_arguments.get("phone", customer.phone)
         tree.write(self.file_name)
 
     def delete_customer(self, customer: Customer) -> None:
@@ -328,7 +318,7 @@ class DataBaseStorage(StorageStrategy):
                 cursor.execute(query)
                 connection.commit()
 
-    def find_customer(self, argument_name: str, argument_value: str) -> str:
+    def find_customer(self, argument_name: str, argument_value: str) -> Customer:
         """
         Searches for a customer in the storage by argument name and value
         and returns the result
@@ -346,32 +336,32 @@ class DataBaseStorage(StorageStrategy):
             with connection.cursor() as cursor:
                 cursor.execute(query)
                 result = cursor.fetchone()
-                return result
+                if result is not None:
+                    customer_id, full_name, position, name_of_the_organization, email, phone = result
+                    customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
+                    return customer
 
-    def update_customer(self, customer: Customer, full_name: str, position: str, name_of_the_organization: str,
-                        email: str, phone: str) -> None:
+    def update_customer(self, customer: Customer, updatable_arguments: dict) -> None:
         """
         Updates the customer instance in the storage
         :param customer: Customer
-        :param full_name: surname, name, patronymic of the customer
-        :param position: customer position
-        :param name_of_the_organization: name of company
-        :param email: Customer email address
-        :param phone: customer's phone number
+        :param updatable_arguments: dict with updatable arguments
         :return: None
         """
         query = f"""
         UPDATE customers 
         SET 
-            full_name = '{full_name}',
-            position = '{position}',
-            name_of_the_organization = '{name_of_the_organization}',
-            email = '{email}',
-            phone = '{phone}'
+            full_name = '{updatable_arguments.get("full_name", customer.full_name)}',
+            position = '{updatable_arguments.get("position", customer.position)}',
+            name_of_the_organization = '{updatable_arguments.get("name_of_the_organization", 
+                                                                 customer.name_of_the_organization)}',
+            email = '{updatable_arguments.get("email", customer.email)}',
+            phone = '{updatable_arguments.get("phone", customer.phone)}'
         WHERE 
             customer_id = '{customer.customer_id}';
         """
-        with create_connection(self.db_name, self.db_user, self.db_password, self.db_host, self.db_port) as connection:
+        with create_connection(self.db_name, self.db_user, self.db_password, self.db_host,
+                               self.db_port) as connection:
             with connection.cursor() as cursor:
                 cursor.execute(query)
                 connection.commit()
@@ -414,11 +404,16 @@ class DataBaseStorage(StorageStrategy):
             ORDER BY 
                 {param};
             """
+        customers = []
         with create_connection(self.db_name, self.db_user, self.db_password, self.db_host, self.db_port) as connection:
             with connection.cursor() as cursor:
                 cursor.execute(query)
                 result = cursor.fetchall()
-                return result
+                for row in result:
+                    customer_id, full_name, position, name_of_the_organization, email, phone = row
+                    customer = Customer(customer_id, full_name, position, name_of_the_organization, email, phone)
+                    customers.append(customer)
+                return customers
 
 
 class StorageFactory:
@@ -476,23 +471,16 @@ class CustomerService:
         customer = self._storage.find_customer(argument_name, argument_value)
         return customer
 
-    def update_customer(self, customer_id: str, full_name: str, position: str, name_of_the_organization: str,
-                        email: str, phone: str) -> None:
+    def update_customer(self, updatable_arguments: dict) -> None:
         """
         Searches for a customer by ID  and
         calls the 'update_customer' command to update the customer into the storage
-        :param customer_id: customer ID
-        :param full_name: surname, name, patronymic of the customer
-        :param position: customer position
-        :param name_of_the_organization: name of company
-        :param email: Customer email address
-        :param phone: customer's phone number
         :return: None
         """
-        customer = self._storage.find_customer('customer_id', customer_id)
+        customer = self._storage.find_customer('customer_id', updatable_arguments['customer_id'])
         if customer is None:
             raise CustomerException("Customer does not exist")
-        self._storage.update_customer(customer, full_name, position, name_of_the_organization, email, phone)
+        self._storage.update_customer(customer, updatable_arguments)
 
     def remove_customer(self, customer_id: str) -> None:
         """
