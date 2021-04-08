@@ -29,7 +29,7 @@
 
 *To run your application in a docker container, use a bash-script.*
 - Specify the first parameter **DB** to store data in a database, or **XML** to store data in an XML file, 
-or **InMemory** or nothing to store data in internal memory. 
+or **InMemory** to store data in internal memory. 
 - Specify the second parameter **clear** to remove docker containers after use or nothing to stop docker containers.
 
-*example: `startup.sh DB clear`*
+*example: `./startup.sh DB clear`*
