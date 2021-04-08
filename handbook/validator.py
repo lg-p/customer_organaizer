@@ -75,7 +75,7 @@ class Validator:
 
     @staticmethod
     def validate_number(value: str) -> bool:
-        if re.match(r"^[0-9]{9}$", value):
+        if re.match(r"^[0-9]{1,9}$", value):
             return True
         return False
 
