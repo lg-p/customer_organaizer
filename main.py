@@ -32,6 +32,10 @@ def main():
 
     while True:
         input_command = input("Please enter the command:").split(maxsplit=1)
+
+        if len(input_command) == 0:
+            continue
+
         try:
             command = EXPECTED_COMMANDS[input_command[0]]()
             command.execute(customer_service)
@@ -39,7 +43,7 @@ def main():
             print("INVALID COMMAND!\n")
             EXPECTED_COMMANDS["help"]().execute(customer_service)
         except ValidateException as e:
-            print("ERROR:", e)
+            print(e)
         except CustomerException as e:
             print("ERROR:", e)
         except Exception as e:
