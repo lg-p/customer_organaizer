@@ -46,8 +46,9 @@ class TestXMLStorage(unittest.TestCase):
         self.xml_storage.insert_customer(customer)
 
         # WHEN
-        arguments_new = "Romanov Dmitriy,general manager,FGH,dmitriy@mail.ru,79273987569".split(",")
-        self.xml_storage.update_customer(customer, *arguments_new)
+        updatable_arguments = dict()
+        updatable_arguments["position"] = "general manager"
+        self.xml_storage.update_customer(customer, updatable_arguments)
         customer = self.xml_storage.find_customer("customer_id", "000000003")
 
         # THEN
