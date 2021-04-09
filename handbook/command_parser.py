@@ -284,7 +284,7 @@ class ListCommand(Command):
         arguments_valid = False
 
         while not arguments_valid:
-            input_arguments = input("arguments name:").split()
+            input_arguments = input("sorted by:").split()
 
             if "cancel" in input_arguments:
                 raise ValidateException("Input canceled.")
