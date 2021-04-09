@@ -79,7 +79,7 @@ class InsertCommand(Command):
             argument_valid = False
 
             while not argument_valid:
-                argument_value = input(f"{argument}:")
+                argument_value = input(f"{argument}:").replace(" ", "")
 
                 if argument_value == "cancel":
                     raise ValidateException("Input canceled.")
@@ -119,7 +119,7 @@ class FindCommand(Command):
         valid_value = False
 
         while not valid_argument:
-            argument_name = input("argument name:")
+            argument_name = input("argument name:").replace(" ", "")
 
             if argument_name == 'cancel':
                 raise ValidateException("Input canceled.")
@@ -132,7 +132,7 @@ class FindCommand(Command):
                       sep="\n")
 
         while not valid_value:
-            argument_value = input("argument value:")
+            argument_value = input("argument value:").replace(" ", "")
 
             if argument_value == "cancel":
                 raise ValidateException("Input canceled.")
@@ -178,7 +178,7 @@ class UpdateCommand(Command):
 
         valid_value = False
         while not valid_value:
-            argument_value = input("customer_id:")
+            argument_value = input("customer_id:").replace(" ", "")
 
             if argument_value == "cancel":
                 raise ValidateException("Input canceled.")
@@ -198,7 +198,7 @@ class UpdateCommand(Command):
             valid_value = False
 
             while not valid_argument:
-                argument_name = input("argument name:")
+                argument_name = input("argument name:").replace(" ", "")
 
                 if argument_name == 'cancel':
                     raise ValidateException("Input canceled.")
@@ -216,7 +216,7 @@ class UpdateCommand(Command):
                 if argument_name == '':
                     break
 
-                argument_value = input("argument value:")
+                argument_value = input("argument value:").replace(" ", "")
 
                 if argument_value == "cancel":
                     raise ValidateException("Input canceled.")
@@ -248,7 +248,7 @@ class DeleteCommand(Command):
         valid_value = False
 
         while not valid_value:
-            argument_value = input("customer_id:")
+            argument_value = input("customer_id:").replace(" ", "")
 
             if argument_value == "cancel":
                 raise ValidateException("Input canceled.")
