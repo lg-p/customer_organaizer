@@ -146,7 +146,11 @@ class FindCommand(Command):
                       sep="\n")
 
         customer = customer_service.find_customer(argument_name, argument_value)
-        print(customer)
+
+        if customer is None:
+            print("No data")
+        else:
+            print(customer)
 
 
 class UpdateCommand(Command):
@@ -299,4 +303,8 @@ class ListCommand(Command):
                     arguments = input_arguments
 
         customer_data = customer_service.get_list_of_customers(arguments)
-        print(*customer_data, sep='\n')
+
+        if len(customer_data) == 0:
+            print("No data")
+        else:
+            print(*customer_data, sep='\n')
