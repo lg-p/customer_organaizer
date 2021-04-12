@@ -7,7 +7,7 @@ services:
   python:
     build:
       context: ..
-      dockerfile: docker/python/Dockerfile
+      dockerfile: docker/Dockerfile
     depends_on:
       - database
 
