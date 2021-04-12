@@ -10,7 +10,7 @@
         *arguments*: one of the customer arguments, argument value  
         
 -  **update** - update a customer in the store\
-        *arguments*: customer_id, full_name, position, name of the organization, email, phone  
+        *arguments*: customer_id, any number of updatable argument pairs (customer argument name and argument value) 
         
 -  **delete** - remove customer from the storage\
         *arguments*: customer_id
@@ -28,8 +28,7 @@
 ## Using with Docker
 
 *To run your application in a docker container, use a bash-script.*
-- Specify the first parameter **DB** to store data in a database, or **XML** to store data in an XML file, 
-or **InMemory** to store data in internal memory. 
-- Specify the second parameter **clear** to remove docker containers after use or nothing to stop docker containers.
+- Specify the mode: **DB** - to store data in a database, **XML** - to store data in an XML file, **InMemory** or nothing - to store data in internal memory. 
+- For **DB** mode: specify ** clear ** as the second parameter to remove docker containers after use or nothing to stop docker containers.
 
 *example: `./startup.sh DB clear`*
