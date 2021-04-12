@@ -2,9 +2,8 @@ FROM python:3.8
 
 WORKDIR usr/src/app
 
-COPY docker/python/requirements.txt ./
+COPY docker/requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-
