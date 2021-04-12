@@ -2,7 +2,7 @@ import argparse
 from os import environ
 
 from handbook.command_parser import ExitCommand, HelpCommand, InsertCommand, FindCommand, UpdateCommand, \
-    DeleteCommand, ListCommand
+    DeleteCommand, ListCommand, CommandException
 from handbook.customer_service import CustomerException, CustomerService, StorageFactory
 from handbook.validator import ValidateException
 
@@ -43,6 +43,8 @@ def main():
             print("INVALID COMMAND!\n")
             EXPECTED_COMMANDS["help"]().execute(customer_service)
         except ValidateException as e:
+            print(e)
+        except CommandException as e:
             print(e)
         except CustomerException as e:
             print("ERROR:", e)
