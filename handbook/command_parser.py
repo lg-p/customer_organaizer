@@ -85,8 +85,7 @@ class InsertCommand(Command):
         print("Enter a parameter or 'cancel':")
         for name_argument in self.expected_arguments:
             while True:
-                value_argument = input(f"{name_argument}:")
-                value_argument.replace(" ", "")
+                value_argument = input(f"{name_argument}:").strip()
 
                 if value_argument == 'cancel':
                     raise CommandException("Input canceled.")
@@ -130,8 +129,7 @@ class FindCommand(Command):
         print("Enter a parameter or 'cancel':")
 
         while True:
-            name_argument = input("argument name:")
-            name_argument.replace(" ", "")
+            name_argument = input("argument name:").strip()
 
             if name_argument == 'cancel':
                 raise CommandException("Input canceled.")
@@ -142,8 +140,7 @@ class FindCommand(Command):
                 break
 
         while True:
-            value_argument = input("argument value:")
-            value_argument.replace(" ", "")
+            value_argument = input("argument value:").strip()
 
             if value_argument == 'cancel':
                 raise CommandException("Input canceled.")
@@ -198,8 +195,7 @@ class UpdateCommand(Command):
 
         print("Enter a parameter or 'cancel':")
         while True:
-            value_argument = input("customer_id:")
-            value_argument.replace(" ", "")
+            value_argument = input("customer_id:").strip()
 
             if value_argument == 'cancel':
                 raise CommandException("Input canceled.")
@@ -212,8 +208,7 @@ class UpdateCommand(Command):
         print("Enter argument name and argument value or '' to stop entering arguments:")
         while True:
             while True:
-                name_argument = input("argument name:")
-                name_argument.replace(" ", "")
+                name_argument = input("argument name:").strip()
 
                 if name_argument == 'cancel':
                     raise CommandException("Input canceled.")
@@ -229,8 +224,7 @@ class UpdateCommand(Command):
                 break
 
             while True:
-                value_argument = input("argument value:")
-                value_argument.replace(" ", "")
+                value_argument = input("argument value:").strip()
 
                 if value_argument == 'cancel':
                     raise CommandException("Input canceled.")
@@ -265,8 +259,7 @@ class DeleteCommand(Command):
         """
         print("Enter argument value or 'cancel':")
         while True:
-            value_argument = input("customer_id:")
-            value_argument.replace(" ", "")
+            value_argument = input("customer_id:").strip()
 
             if value_argument == 'cancel':
                 raise CommandException("Input canceled.")
