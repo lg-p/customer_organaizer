@@ -10,6 +10,35 @@ class Command(ABC):
     def execute(self, customer_service: CustomerService, validator=Validator) -> None:
         pass
 
+    @staticmethod
+    def prompt_argument_input(name_arg: str, type_arg: str, validator, expected_arguments: list,
+                              possibly_empty=False) -> str:
+        """
+        Prompts for an argument value according to the list of expected_arguments and validates the entered value.
+        If the argument is not valid, the program asks for re-entry until a valid value or 'cancel' is entered.
+
+        'cancel' raises CommandException.
+        :return input value
+        """
+        while True:
+            input_value = input(f"{name_arg}:").strip()
+
+            if input_value == 'cancel':
+                raise CommandException("Input canceled.")
+
+            if possibly_empty and input_value == "":
+                return input_value
+
+            if type_arg == "value_argument":
+                value_argument_valid = validator.validate_argument_value(name_arg, input_value)
+            else:
+                value_argument_valid = validator.validate_argument_name(input_value, expected_arguments)
+
+            if value_argument_valid:
+                break
+
+        return input_value
+
 
 class CommandException(Exception):
     def __init__(self, message: str) -> None:
@@ -74,26 +103,16 @@ class InsertCommand(Command):
 
     def get_arguments(self, validator) -> list:
         """
-        Prompts for a parameter value according to the list of expected_arguments and validates the entered value.
-        If the parameter is not valid, the program asks for re-entry until a valid value or 'cancel' is entered.
-
-        'cancel' raises CommandException.
+        Call 'prompt_argument_input' method for 'expected_arguments'
         :return argument list
         """
         arguments = []
 
-        print("Enter a parameter or 'cancel':")
+        print("Enter a argument or 'cancel':")
         for name_argument in self.expected_arguments:
-            while True:
-                value_argument = input(f"{name_argument}:").strip()
-
-                if value_argument == 'cancel':
-                    raise CommandException("Input canceled.")
-
-                value_argument_valid = validator.validate_argument_value(name_argument, value_argument)
-                if value_argument_valid:
-                    arguments.append(value_argument)
-                    break
+            value_argument = self.prompt_argument_input(name_argument, "value_argument",
+                                                        validator, self.expected_arguments)
+            arguments.append(value_argument)
 
         return arguments
 
@@ -115,40 +134,22 @@ class FindCommand(Command):
 
     def get_arguments(self, validator) -> namedtuple:
         """
-        Prompts for input for the name of the parameter and checks if it is in the list of expected_arguments.
-        Then you are prompted to enter a value for the parameter.
-
-        If the parameter or parameter name is not valid, the program asks for re-entry
-        until a valid value or 'cancel' is entered.
-
-        'cancel' raises CommandException.
+        Call 'prompt_argument_input' method for argument name
+        Call 'prompt_argument_input' method for argument value
         :return a tuple with the name and value of the argument
         """
         arguments = namedtuple("arguments", "name value")
 
-        print("Enter a parameter or 'cancel':")
+        print("Enter a argument (customer_id, full_name, position, name_of_the_organization, email, phone) "
+              "or 'cancel':")
 
-        while True:
-            name_argument = input("argument name:").strip()
+        name_argument = self.prompt_argument_input("argument name", "name_argument",
+                                                   validator, self.expected_arguments)
+        arguments.name = name_argument
 
-            if name_argument == 'cancel':
-                raise CommandException("Input canceled.")
-
-            name_argument_valid = validator.validate_argument_name(name_argument, self.expected_arguments)
-            if name_argument_valid:
-                arguments.name = name_argument
-                break
-
-        while True:
-            value_argument = input("argument value:").strip()
-
-            if value_argument == 'cancel':
-                raise CommandException("Input canceled.")
-
-            value_argument_valid = validator.validate_argument_value(name_argument, value_argument)
-            if value_argument_valid:
-                arguments.value = value_argument
-                break
+        value_argument = self.prompt_argument_input("argument value", "value_argument",
+                                                    validator, self.expected_arguments)
+        arguments.value = value_argument
 
         return arguments
 
@@ -179,60 +180,28 @@ class UpdateCommand(Command):
 
     def get_arguments(self, validator) -> dict:
         """
-        Prompts for "customer_id" input and validates the entered value.
-
-        Prompts for the name of the parameter to update and checks if it is in the list of expected_arguments.
-        Then you are prompted to enter a value for the parameter.
-        If an empty parameter name is entered, the loop breaks.
-
-        If the parameter or parameter name is not valid, the program asks for re-entry
-        until a valid value or 'cancel' is entered.
-
-        'cancel' raises CommandException.
+        Call 'prompt_argument_input' method for 'customer_id'
+        Call 'prompt_argument_input' method for argument name
+        and call 'prompt_argument_input' method for argument value as long as the argument name is not empty.
         :return dict with arguments
         """
         updatable_arguments = dict()
 
-        print("Enter a parameter or 'cancel':")
+        customer_id = self.prompt_argument_input("customer_id", "value_argument", validator, self.expected_arguments)
+        updatable_arguments["customer_id"] = customer_id
+
+        print("Enter an argument (customer_id, full_name, position, name_of_the_organization, email, phone) "
+              "or 'cancel':")
         while True:
-            value_argument = input("customer_id:").strip()
-
-            if value_argument == 'cancel':
-                raise CommandException("Input canceled.")
-
-            value_argument_valid = validator.validate_argument_value("customer_id", value_argument)
-            if value_argument_valid:
-                updatable_arguments["customer_id"] = value_argument
-                break
-
-        print("Enter argument name and argument value or '' to stop entering arguments:")
-        while True:
-            while True:
-                name_argument = input("argument name:").strip()
-
-                if name_argument == 'cancel':
-                    raise CommandException("Input canceled.")
-
-                if name_argument == "":
-                    break
-
-                name_argument_valid = validator.validate_argument_name(name_argument, self.expected_arguments)
-                if name_argument_valid:
-                    break
+            name_argument = self.prompt_argument_input("argument name", "name_argument",
+                                                       validator, self.expected_arguments, True)
 
             if name_argument == "":
                 break
 
-            while True:
-                value_argument = input("argument value:").strip()
-
-                if value_argument == 'cancel':
-                    raise CommandException("Input canceled.")
-
-                value_argument_valid = validator.validate_argument_value(name_argument, value_argument)
-                if value_argument_valid:
-                    updatable_arguments[name_argument] = value_argument
-                    break
+            value_argument = self.prompt_argument_input("argument value", "value_argument",
+                                                        validator, self.expected_arguments)
+            updatable_arguments[name_argument] = value_argument
 
         return updatable_arguments
 
@@ -250,25 +219,14 @@ class UpdateCommand(Command):
 class DeleteCommand(Command):
     def get_arguments(self, validator) -> str:
         """
-        Prompts for input parameter and checks if it is in the list of expected_arguments.
-
-        If the parameter is not valid, the program asks for re-entry until a valid value or 'cancel' is entered.
-
-        'cancel' raises CommandException.
+        Call 'prompt_argument_input' method for customer_id
         :return: customer_id value
         """
-        print("Enter argument value or 'cancel':")
-        while True:
-            value_argument = input("customer_id:").strip()
+        print("Enter an argument or 'cancel':")
 
-            if value_argument == 'cancel':
-                raise CommandException("Input canceled.")
+        customer_id = self.prompt_argument_input("customer_id", "value_argument", validator, [])
 
-            value_argument_valid = validator.validate_argument_value("customer_id", value_argument)
-            if value_argument_valid:
-                break
-
-        return value_argument
+        return customer_id
 
     def execute(self, customer_service: CustomerService, validator=Validator) -> None:
         """
@@ -284,9 +242,9 @@ class DeleteCommand(Command):
 class ListCommand(Command):
     def get_arguments(self, validator) -> list:
         """
-        Prompts for input for the name of the parameter and checks if it is in the list of expected_arguments.
+        Prompts for input for the name of the argument and checks if it is in the list of expected_arguments.
 
-        If the parameter or parameter name is not valid, the program asks for re-entry
+        If the argument or argument name is not valid, the program asks for re-entry
         until a valid value or 'cancel' is entered.
 
         'cancel' raises CommandException.
@@ -294,8 +252,8 @@ class ListCommand(Command):
         """
         arguments = []
 
-        print("Enter one or more arguments, separated by a space or nothing, "
-              "or enter 'cancel' to cancel:")
+        print("Enter one or more arguments (customer_id, full_name, position, name_of_the_organization, email, phone), "
+              "separated by a space or nothing, or enter 'cancel' to cancel:")
         while True:
             input_arguments = input("sorted by:").split()
 
