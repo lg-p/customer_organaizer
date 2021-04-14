@@ -55,7 +55,7 @@ class Validator:
         if name == "customer_id":
             if not cls.validate_number(value):
                 result.isSuccess = False
-                result.errors.append(f"{name} must be 9 digits long")
+                result.errors.append(f"{name} length up to 9 digits")
         elif name == "full_name" or name == "position":
             if not cls.validate_string(value):
                 result.isSuccess = False
@@ -71,7 +71,7 @@ class Validator:
         elif name == "phone":
             if not cls.validate_phone(value):
                 result.isSuccess = False
-                result.errors.append(f"{name} must be no more than 11 digits")
+                result.errors.append(f"{name} length up to 11 digits")
         return result
 
     @staticmethod
@@ -120,6 +120,6 @@ class Validator:
 
     @staticmethod
     def validate_phone(value: str) -> bool:
-        if re.match(r"^[0-9]{11}$", value):
+        if re.match(r"^[0-9]{1,11}$", value):
             return True
         return False
