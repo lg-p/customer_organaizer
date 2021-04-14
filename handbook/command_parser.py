@@ -53,7 +53,7 @@ class ExitCommand(Command):
         """
          Closes the program
         """
-        raise SystemExit
+        exit()
 
 
 class HelpCommand(Command):
