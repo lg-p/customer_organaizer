@@ -13,7 +13,7 @@ if [ "$mode" = "XML" ]; then
   printf "\nXML mode started: data is saved in an XML file."
   docker build -f docker/Dockerfile -t handbook_image .
   if [ "$OSTYPE" = "msys" ]; then
-    winty docker run -it --rm --name handbook_container handbook_image python main.py --path /handbook.xml
+    winpty docker run -it --rm --name handbook_container handbook_image python main.py --path /handbook.xml
   else
     docker run -it --rm --name handbook_container handbook_image python main.py --path /handbook.xml
   fi
@@ -23,7 +23,7 @@ if [ "$mode" = "" ] || [ "$mode" = "InMemory" ]; then
   printf "\nInMemory mode started: data is saved in internal memory."
   docker build -f docker/Dockerfile -t handbook_image .
   if [ "$OSTYPE" = "msys" ]; then
-    winty docker run -it --rm --name handbook_container handbook_image python main.py
+    winpty docker run -it --rm --name handbook_container handbook_image python main.py
   else
     docker run -it --rm --name handbook_container handbook_image python main.py
   fi
